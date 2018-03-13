@@ -4,6 +4,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <unistd.h>
 
 int main (int argc, char *argv[]) {
   int sockfd, newsockfd, portno=80, clilen;
@@ -33,36 +34,37 @@ int main (int argc, char *argv[]) {
   listen(sockfd,1);
   clilen = sizeof(cli_addr);
   while (1) {
-    printf("accepting...\n");
-  newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
-  if (newsockfd<0) {
-    perror("Error on accept");
-    exit(1);
-  }
-  printf("newsockfd:%d\n",newsockfd);
-  
-  bzero(buffer,sizeof(buffer));
-  n = read(newsockfd,buffer,sizeof(buffer)-1);
-  if (n<0) {
-    perror("ERROR reading fro socket");
-    exit(1);
-  }
-  printf("Here is the message:\n%s\n",buffer);
+	    printf("accepting...\n");
+	    newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
+	    if (newsockfd<0) {
+	      perror("Error on accept");
+	      exit(1);
+	    }
+	    printf("newsockfd:%d\n",newsockfd);
 
-  count++;
-  sprintf(body,"<html><body><h1>Chris count:%d</h1></body></html>\r\n",count);
+	    bzero(buffer,sizeof(buffer));
+	    n = read(newsockfd,buffer,sizeof(buffer)-1);
+	    if (n<0) {
+	      perror("ERROR reading fro socket");
+	      exit(1);
+	    }
+	    printf("Here is the message (length:%d):\n%s\n",strlen(buffer),buffer);
+	    if (strlen(buffer)==0) continue;
 
-  sprintf(buffer,"HTTP/1.1 200 OK\r\n");
-  strcat(buffer,"Date: Mon,  27 Jul 2018 12:28:50 GMT\r\n");
-  sprintf(tempstr,"Content-length: %d\r\n",strlen(body));
-  strcat(buffer,tempstr);
-  strcat(buffer,"Content-Type: text/html\r\n");
-  strcat(buffer,"Connection: Closed\r\n");
-  strcat(buffer,"\r\n");
-  strcat(buffer,body);
-  printf("sending:\n%s\n",buffer);
-  n=write(newsockfd,buffer,strlen(buffer));
-  printf("n=%d\n",n);
+	    count++;
+	    sprintf(body,"<html><body><h1>Chris count:%d</h1></body></html>\r\n",count);
+
+	    sprintf(buffer,"HTTP/1.1 200 OK\r\n");
+	    strcat(buffer,"Date: Mon,  27 Jul 2018 12:28:50 GMT\r\n");
+	    sprintf(tempstr,"Content-length: %d\r\n",strlen(body));
+	    strcat(buffer,tempstr);
+	    strcat(buffer,"Content-Type: text/html\r\n");
+	    strcat(buffer,"Connection: Closed\r\n");
+	    strcat(buffer,"\r\n");
+	    strcat(buffer,body);
+	    printf("sending:\n%s\n",buffer);
+	    n=write(newsockfd,buffer,strlen(buffer));
+	    printf("n=%d\n",n);
   }
   
   printf("happy\n");
