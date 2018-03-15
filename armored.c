@@ -8,6 +8,8 @@
 #include <artik_sensor.h>
 
 
+static char outputString[1024]="";
+
 static void signal_handler(int signum)
 {
   printf("signal called with signum:%d!\n",signum);
@@ -48,19 +50,18 @@ artik_error getTemperatureData(int *celsius, int *fahrenheit) {
   return ret;
 }
 
-int main(int argc, char *argv[])
-{
-  int celsius=-1, fahrenheit=-1;
-  artik_error error;
+int handleGet(char *list) {
   char *token;
+  artik_error error=S_OK;
+  int celsius=-1, fahrenheit=-1;
 
-  printf("hi\n");
-  token = strtok(argv[1],"|");
+  token = strtok(list,"|");
   while (token) {
     printf("Token:%s\n",token);
     if (strcmp(token,"temperature")==0) {
       error = getTemperatureData(&celsius, &fahrenheit);
-      printf("Error: %d ErrStr:%s c:%d f:%d\n",error, error_msg(error), celsius, fahrenheit);
+      if (error == S_OK)
+	sprintf(&outputString[strlen(outputString)]," \"celsius\":%d,\n \"fahrenheit\":%d,\n",celsius,fahrenheit);
     }
     else {
       printf("Unknown token:%s\n",token);
@@ -68,8 +69,36 @@ int main(int argc, char *argv[])
     }
     token = strtok(NULL,"|");
   }
+  return error;
+}
 
-  return 0;  
+
+int main(int argc, char *argv[])
+{
+  int ret=0;
+  int i;
+
+  if (argc<=1) {
+    printf("Syntax: armored [--get \"temperature|humidity|GPIOx...\"] [--http listen]\n");
+    return -1;
+  }
+
+  sprintf(outputString,"{\n");
+
+  i=1;
+  while (i<argc){
+    if (strcmp(argv[i],"--get")==0) {
+      i++;
+      ret = handleGet(argv[i]);
+      if (ret) break;
+    }
+    i++;
+  }
+
+  sprintf(&outputString[strlen(outputString)]," \"resultCode\":%d,\n \"resultString\":\"%s\"\n}",ret,error_msg(ret));
+  printf("outputString: \n%s\n",outputString);
+  
+  return ret;  
 }
 
 

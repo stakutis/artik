@@ -38,7 +38,8 @@ static int end = 0;
 
 static void signal_handler(int signum)
 {
-	end = 1;
+  printf("signal called!\n");
+  end = 1;
 }
 
 int main(void)
@@ -73,10 +74,10 @@ int main(void)
 	artik_sensor_hall *sensor_hall           = NULL;
 	artik_sensor_config *all_conf            = sensor->list();
 
-	int k = 5;
+	int k = 1;
 	int i   = 0;
 	int res = 0;
-
+	printf("starting...\n");
 	signal(SIGINT, signal_handler);
 	while (all_conf && all_conf[i].type) {
 		printf("CONF[%s] (%d)\n", all_conf[i].name, all_conf[i].type);
@@ -154,7 +155,7 @@ int main(void)
 		}
 		printf("===================================================\n");
 		--k;
-		sleep(2);
+		if (k) sleep(2);
 	}
 	if (sensor_acce)
 		sensor_acce->release(handle_acce);
@@ -162,8 +163,10 @@ int main(void)
 		sensor_humid->release(handle_humid);
 	if (sensor_photolight)
 		sensor_photolight->release(handle_photolight);
-	if (sensor_envtemp)
-		sensor_envtemp->release(handle_envtemp);
+	if (sensor_envtemp) {
+	  printf("releasing temp...\n");
+	  sensor_envtemp->release(handle_envtemp);
+	}
 	if (sensor_pressure)
 		sensor_pressure->release(handle_pressure);
 	if (sensor_hall)
