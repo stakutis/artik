@@ -406,7 +406,7 @@ int handleHTTP(char *str) {
 	    }
 	    printf("Here is the message (length:%d):\n%s\n",strlen(buffer),buffer);
 	    if (strlen(buffer)==0) continue;
-	    char *baseGet="GET /ArmoredArtikd?command=read%20";
+	    char *baseGet="GET /Artikd?command=read%20";
  	    if (strncmp(buffer,baseGet,strlen(baseGet))==0) {
 	      char *p=&buffer[strlen(baseGet)];
 	      char *space;
@@ -477,7 +477,7 @@ int main(int argc, char *argv[])
 
   if (argc<=1 || strcmp(argv[1],"-h")==0 || strcmp(argv[1],"--help")==0) {
     printf("Syntax: %s [-h] [--help] [--read \"temperature|humidity|light|pressure|magnet|accelerometer|GPIOx|ARTIKx...\"] [--http listen]\n",argv[0]);
-    printf("Via HTTP:  IP/ArmoredArtikd?command=read and the above stuff starting with --read\n");
+    printf("Via HTTP:  IP/Artikd?command=read and the above stuff starting with --read\n");
     printf("    Example:  http://10.0.0.227/AmoredArtikd?commmand=read temperature|humidity|ARTIK30\n");
     printf("   When specifying GPIOx the 'x' is the silk screen  GPIO value.\n");
     printf("   When specifying ARTIK the 'x' is the true Artik sysfs value;  30 is the front most button on the imposer board for example.\n");
